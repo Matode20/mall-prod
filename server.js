@@ -3,8 +3,6 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import Sales from "./models/sales.js";
-import User from "./models/user.js";
 import router from "./routes/auth.js";
 
 dotenv.config();
@@ -16,16 +14,17 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use('/api/sales', router);
+app.use("/api/sales", router);
+app.use("/api/reports", router);
 
 // Database connection
 mongoose
-    .connect(process.env.MONGO_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    })
-    .then(() => console.log("MongoDB connected"))
-    .catch((err) => console.log(err));
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.log(err));
 
 // // Test route
 // app.get("/", (req, res) => {

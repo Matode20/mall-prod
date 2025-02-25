@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const protect = (req, res, next) => {
+export const validateJWT = (req, res, next) => {
   const token = req.header("Authorization");
 
   if (!token)
@@ -24,9 +24,10 @@ export const protect = (req, res, next) => {
 };
 
 // Role-based access
-export const authorize = (roles) => (req, res, next) => {
+export const authorize = (...roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) {
     return res.status(403).json({ message: "Permission denied" });
   }
   next();
 };
+

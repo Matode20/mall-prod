@@ -2,19 +2,25 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import dotenv from "dotenv";
+import generateToken from "../lib/generateToken.js";
 
 dotenv.config(); // Load environment variables
 
 const generateToken = (user) => {
-  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  return jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
 };
 
 // REGISTER (SIGNUP)
 export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
+
+    // Only allow role assignment by Super Admins
+    if (role && req.user.role !== "superadmin") {
+      return res
+        .status(403)
+        .json({ message: "Only Super Admins can assign roles" });
+    }
 
     // Check if user exists
     let user = await User.findOne({ email });
