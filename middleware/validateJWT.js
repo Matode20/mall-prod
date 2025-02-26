@@ -12,29 +12,22 @@ dotenv.config();
  * @param {Function} next - Express next middleware function
  */
 export const validateJWT = (req, res, next) => {
-  // Get token from request header
-  const token = req.header("Authorization");
+  const authHeader = req.headers.authorization;
 
-  // Check if token exists
-  if (!token)
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "No token provided" });
+  }
 
   try {
-    // Verify and decode the token
-    // Remove 'Bearer ' prefix if present
-    const decoded = jwt.verify(
-      token.replace("Bearer ", ""),
-      process.env.JWT_SECRET
-    );
-    // Add decoded user data to request object
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Add the complete decoded user info to req.user
     req.user = decoded;
-    // Proceed to next middleware
     next();
   } catch (error) {
-    // Return error if token is invalid
-    res.status(401).json({ message: "Invalid token" });
+    console.error("JWT Error:", error);
+    res.status(401).json({ message: "Not authorized, token failed" });
   }
 };
 
@@ -43,11 +36,21 @@ export const validateJWT = (req, res, next) => {
  * @param {...string} roles - Allowed roles for the route
  * @returns {Function} Middleware function
  */
-export const authorize = (...roles) => (req, res, next) => {
-  // Check if user's role is included in allowed roles
-  if (!roles.includes(req.user.role)) {
-    return res.status(403).json({ message: "Permission denied" });
-  }
-  // Proceed to next middleware if role is authorized
-  next();
-};
+export const authorize =
+  (...roles) =>
+  (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    console.log("User role:", req.user.role); // Add this for debugging
+    console.log("Allowed roles:", roles); // Add this for debugging
+
+    // Check if user's role is included in allowed roles
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Permission denied" });
+    }
+
+    // Proceed to next middleware if role is authorized
+    next();
+  };

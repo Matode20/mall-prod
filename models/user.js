@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema(
       enum: ["cashier", "admin", "superadmin"],
       default: "cashier",
     },
-    branch: { type: String, required: true },
+    branch: { type: String, required: false },
   },
   { timestamps: true }
 );

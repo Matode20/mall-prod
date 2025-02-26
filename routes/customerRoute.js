@@ -10,10 +10,10 @@ import { authorize } from "../middleware/validateJWT.js";
 
 const customerRoutes = express.Router();
 
-router.post("/", createCustomer); // Create a new customer
-router.get("/", getAllCustomers); // Get all customers
-router.get("/:id", getCustomerById); // Get a single customer
-router.put("/:id", updateCustomer); // Update a customer
-router.delete("/:id", authorize("superadmin", "admin") , deleteCustomer); // Delete a customer
+customerRoutes.post("/create-customer", createCustomer); // Create a new customer
+customerRoutes.get("/", getAllCustomers); // Get all customers
+customerRoutes.get("/:id", getCustomerById); // Get a single customer
+customerRoutes.put("/:id", updateCustomer); // Update a customer
+customerRoutes.delete("/:id", authorize("superadmin", "admin"), deleteCustomer); // Delete a customer
 
 export default customerRoutes;

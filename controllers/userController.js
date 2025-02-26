@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.js";
 import dotenv from "dotenv";
-import generateToken from "../lib/generateToken.js";
-
+import jwt from "jsonwebtoken";
 // Load environment variables from .env file
 dotenv.config();
 
@@ -18,7 +17,7 @@ export const register = async (req, res) => {
 
     // Role assignment validation
     // Only Super Admins can assign specific roles
-    if (role && req.user.role !== "superadmin") {
+    if (role && (!req.user || req.user.role !== "superadmin")) {
       return res
         .status(403)
         .json({ message: "Only Super Admins can assign roles" });
@@ -37,7 +36,8 @@ export const register = async (req, res) => {
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.log("Error", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -62,11 +62,31 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
 
     // Generate JWT token for authentication
-    const token = generateToken(user);
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        branch: user.branch,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
-    res.json({ message: "Login successful", token });
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        branch: user.branch,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -83,6 +103,8 @@ export const getUserProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching profile", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching profile", error: error.message });
   }
 };

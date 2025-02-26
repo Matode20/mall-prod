@@ -3,11 +3,12 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import router from "./routes/userRoute.js";
+import router from "./routes/route.js";
 import connectDB from "./db/conn.js";
 import scheduleReports from "./services/reportScheduler.js";
 import { scheduleBirthdayMessages } from "./utils/birthdayServices.js";
 import customerRoutes from "./routes/customerRoute.js";
+import userRouter from "./routes/userRoute.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ scheduleBirthdayMessages();
 app.use("/api/sales", router);
 app.use("/api/reports", router);
 app.use("/api/customers", customerRoutes);
+app.use("/api/user", userRouter);
 app.get("/", (req, res) => {
   res.send("hello welcome to my personal api server");
 });
