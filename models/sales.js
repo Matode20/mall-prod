@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
+import Customer from "./customer.js";
 
-const Sales = new mongoose.Schema(
+const SaleSchema = new mongoose.Schema(
   {
-    customerName: { type: String, required: true },
-    customerDOB: { type: String, required: true },
-    customerPhone: { type: String, required: true },
-    customerEmail: { type: String, required: true },
+    customer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Customer,
+      required: true,
+    },
     products: [{ name: String, quantity: Number, price: Number }],
     purchaseTime: { type: Date, default: Date.now },
     purchaseAmount: { type: Number, required: true },
@@ -20,5 +22,5 @@ const Sales = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+const Sales = mongoose.model("Sales", SaleSchema);
 export default Sales;

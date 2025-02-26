@@ -3,19 +3,31 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import router from "./routes/auth.js";
+import router from "./routes/userRoute.js";
+import connectDB from "./db/conn.js";
+import scheduleReports from "./services/reportScheduler.js";
+import { scheduleBirthdayMessages } from "./utils/birthdayServices.js";
 
 dotenv.config();
 
 const app = express();
 
+connectDB();
+
+
 // Middleware
 app.use(express.json());
 app.use(cors());
 
+scheduleReports();
+scheduleBirthdayMessages();
+
 // Routes
 app.use("/api/sales", router);
 app.use("/api/reports", router);
+app.get("/", (req, res) => {
+  res.send("hello welcome to my personal api server");
+});
 
 // Database connection
 mongoose

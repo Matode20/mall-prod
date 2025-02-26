@@ -15,11 +15,16 @@ import {
 
 const router = express.Router();
 
-router.post("/", validateJWT, createSale); // Create a new sale
-router.get("/", validateJWT, authorize(admin, superadmin), getSales); // Get all sales
+router.post("/create", createSale); // Create a new sale
+router.get(
+  "/get-sales",
+  validateJWT,
+  authorize("admin", "superadmin"),
+  getSales
+); // Get all sales
 router.get("/:id", validateJWT, getSaleById); // Get a single sale by ID
-router.put("/:id", validateJWT, updateSale); // Update a sale
-router.delete("/:id", validateJWT, authorize(superadmin), deleteSale); // Delete a sale
+router.put("update/:id", validateJWT, updateSale); // Update a sale
+router.delete("delete/:id", validateJWT, authorize("superadmin"), deleteSale); // Delete a sale
 router.post("/register", register);
 router.post("/login", login);
 router.get(

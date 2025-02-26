@@ -1,13 +1,60 @@
 import Sales from "../models/sales.js";
+import Customer from "../models/customer.js";
+import { sendEmail } from "../utils/emailService.js";
 
 // Create a new sale
 export const createSale = async (req, res) => {
   try {
-    const sale = new Sale(req.body);
+    const {
+      name,
+      birthMonth,
+      birthDay,
+      phone,
+      email,
+      purchasedProducts,
+      purchaseAmount,
+      branch,
+      paymentMode,
+      cashier,
+      salesPoint,
+    } = req.body;
+
+    // Check if the customer exists
+    let customer = await Customer.findOne({ phone });
+
+    if (!customer) {
+      // Create a new customer if they don't exist
+      customer = new Customer({ name, birthMonth, birthDay, phone, email });
+      await customer.save();
+    }
+
+    // Create the sale record
+    const sale = new Sales({
+      customer: customer._id,
+      purchasedProducts,
+      purchaseAmount,
+      branch,
+      paymentMode,
+      cashier,
+      salesPoint,
+    });
+
     await sale.save();
-    res.status(201).json(sale);
+
+    // Send Thank You Email
+    if (email) {
+      sendEmail(
+        email,
+        "Thank You for Your Purchase!",
+        `Dear ${name},\n\nThank you for shopping with us! You purchased the following: ${purchasedProducts}. Your total purchase was $${purchaseAmount}.\n\nRegards,\nMall Prod`
+      );
+    }
+
+    res.status(201).json({ message: "Sale recorded successfully", sale });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res
+      .status(500)
+      .json({ message: "Error recording sale", error: error.message });
   }
 };
 
