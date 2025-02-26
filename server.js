@@ -7,13 +7,13 @@ import router from "./routes/userRoute.js";
 import connectDB from "./db/conn.js";
 import scheduleReports from "./services/reportScheduler.js";
 import { scheduleBirthdayMessages } from "./utils/birthdayServices.js";
+import customerRoutes from "./routes/customerRoute.js";
 
 dotenv.config();
 
 const app = express();
 
 connectDB();
-
 
 // Middleware
 app.use(express.json());
@@ -25,6 +25,7 @@ scheduleBirthdayMessages();
 // Routes
 app.use("/api/sales", router);
 app.use("/api/reports", router);
+app.use("/api/customers", customerRoutes);
 app.get("/", (req, res) => {
   res.send("hello welcome to my personal api server");
 });
